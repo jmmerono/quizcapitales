@@ -28,12 +28,19 @@
     }
 
     h1 {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     #question {
       font-size: 1.2rem;
       margin-bottom: 1rem;
+    }
+
+    .flag {
+      width: 100px;
+      height: auto;
+      margin: 1rem auto;
+      border: 1px solid #fff;
     }
 
     .options {
@@ -57,7 +64,7 @@
       background-color: #e0e0e0;
     }
 
-    #result {
+    #result, #score, #final-score {
       margin-top: 1rem;
       font-size: 1.1rem;
     }
@@ -73,26 +80,32 @@
 <body>
   <div class="container">
     <h1>Quiz de Capitales</h1>
+    <div id="score">Puntuación: 0</div>
     <div id="question">Cargando...</div>
+    <img id="flag" class="flag" src="" alt="Bandera del país" />
     <div class="options" id="options"></div>
     <div id="result"></div>
+    <div id="final-score"></div>
   </div>
 
   <script>
     const countries = [
-      { country: "España", capital: "Madrid" },
-      { country: "Francia", capital: "París" },
-      { country: "Alemania", capital: "Berlín" },
-      { country: "Italia", capital: "Roma" },
-      { country: "Japón", capital: "Tokio" },
-      { country: "Argentina", capital: "Buenos Aires" },
-      { country: "Brasil", capital: "Brasilia" },
-      { country: "Canadá", capital: "Ottawa" },
-      { country: "Australia", capital: "Canberra" },
-      { country: "México", capital: "Ciudad de México" }
+      { country: "España", capital: "Madrid", flag: "https://flagcdn.com/es.svg" },
+      { country: "Francia", capital: "París", flag: "https://flagcdn.com/fr.svg" },
+      { country: "Alemania", capital: "Berlín", flag: "https://flagcdn.com/de.svg" },
+      { country: "Italia", capital: "Roma", flag: "https://flagcdn.com/it.svg" },
+      { country: "Japón", capital: "Tokio", flag: "https://flagcdn.com/jp.svg" },
+      { country: "Argentina", capital: "Buenos Aires", flag: "https://flagcdn.com/ar.svg" },
+      { country: "Brasil", capital: "Brasilia", flag: "https://flagcdn.com/br.svg" },
+      { country: "Canadá", capital: "Ottawa", flag: "https://flagcdn.com/ca.svg" },
+      { country: "Australia", capital: "Canberra", flag: "https://flagcdn.com/au.svg" },
+      { country: "México", capital: "Ciudad de México", flag: "https://flagcdn.com/mx.svg" }
     ];
 
+    let score = 0;
+    let questionCount = 0;
     let currentQuestion = {};
+    let startTime;
 
     function getRandomElements(arr, n) {
       const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -100,6 +113,16 @@
     }
 
     function newQuestion() {
+      if (questionCount >= 10) {
+        document.getElementById("final-score").textContent = `Juego terminado. Puntuación final: ${score}`;
+        document.getElementById("question").style.display = "none";
+        document.getElementById("options").style.display = "none";
+        document.getElementById("flag").style.display = "none";
+        document.getElementById("result").style.display = "none";
+        return;
+      }
+
+      questionCount++;
       const questionCountry = countries[Math.floor(Math.random() * countries.length)];
       const options = getRandomElements(countries.filter(c => c.capital !== questionCountry.capital), 3);
       options.push(questionCountry);
@@ -108,6 +131,7 @@
       currentQuestion = questionCountry;
 
       document.getElementById("question").textContent = `¿Cuál es la capital de ${questionCountry.country}?`;
+      document.getElementById("flag").src = questionCountry.flag;
 
       const optionsContainer = document.getElementById("options");
       optionsContainer.innerHTML = "";
@@ -120,16 +144,25 @@
       });
 
       document.getElementById("result").textContent = "";
+      startTime = new Date();
     }
 
     function checkAnswer(selected) {
       const result = document.getElementById("result");
+      const endTime = new Date();
+      const timeDiff = (endTime - startTime) / 1000; // en segundos
+
+      let points = 0;
       if (selected === currentQuestion.capital) {
-        result.textContent = "✅ ¡Correcto!";
+        points = Math.max(10 - Math.floor(timeDiff), 1); // más rápido, más puntos
+        score += points;
+        result.textContent = `✅ ¡Correcto! (+${points} puntos)`;
       } else {
         result.textContent = `❌ Incorrecto. La capital es ${currentQuestion.capital}`;
       }
-      setTimeout(newQuestion, 1500);
+
+      document.getElementById("score").textContent = `Puntuación: ${score}`;
+      setTimeout(newQuestion, 2000);
     }
 
     newQuestion();
