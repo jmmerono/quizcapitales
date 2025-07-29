@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz de Capitales</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #2193b0, #6dd5ed);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    #question {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button.option {
+      background-color: #ffffff;
+      color: #333;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button.option:hover {
+      background-color: #e0e0e0;
+    }
+
+    #result {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz de Capitales</h1>
+    <div id="question">Cargando...</div>
+    <div class="options" id="options"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const countries = [
+      { country: "España", capital: "Madrid" },
+      { country: "Francia", capital: "París" },
+      { country: "Alemania", capital: "Berlín" },
+      { country: "Italia", capital: "Roma" },
+      { country: "Japón", capital: "Tokio" },
+      { country: "Argentina", capital: "Buenos Aires" },
+      { country: "Brasil", capital: "Brasilia" },
+      { country: "Canadá", capital: "Ottawa" },
+      { country: "Australia", capital: "Canberra" },
+      { country: "México", capital: "Ciudad de México" }
+    ];
+
+    let currentQuestion = {};
+
+    function getRandomElements(arr, n) {
+      const shuffled = [...arr].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, n);
+    }
+
+    function newQuestion() {
+      const questionCountry = countries[Math.floor(Math.random() * countries.length)];
+      const options = getRandomElements(countries.filter(c => c.capital !== questionCountry.capital), 3);
+      options.push(questionCountry);
+      const shuffledOptions = getRandomElements(options, 4);
+
+      currentQuestion = questionCountry;
+
+      document.getElementById("question").textContent = `¿Cuál es la capital de ${questionCountry.country}?`;
+
+      const optionsContainer = document.getElementById("options");
+      optionsContainer.innerHTML = "";
+      shuffledOptions.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.textContent = opt.capital;
+        btn.onclick = () => checkAnswer(opt.capital);
+        optionsContainer.appendChild(btn);
+      });
+
+      document.getElementById("result").textContent = "";
+    }
+
+    function checkAnswer(selected) {
+      const result = document.getElementById("result");
+      if (selected === currentQuestion.capital) {
+        result.textContent = "✅ ¡Correcto!";
+      } else {
+        result.textContent = `❌ Incorrecto. La capital es ${currentQuestion.capital}`;
+      }
+      setTimeout(newQuestion, 1500);
+    }
+
+    newQuestion();
+  </script>
+</body>
+</html>
